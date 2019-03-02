@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link href="assets/deps/bootstrap.min.css" rel="stylesheet">
+    <title>Yoki's Math Gen</title>
+    <style>
+        .container li {
+            list-style: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container" id="examApp">
+        <ul class="nav">
+            <!-- <li class="nav-item">
+                <router-link to="/plus-minus-lv1" class="nav-link">100内加减法</router-link>
+            </li> -->
+            <!-- <li class="nav-item">
+                <router-link to="/multiply-lv1" class="nav-link">99乘法</router-link>
+            </li> -->
+            <li class="nav-item">
+                <router-link to="/multiply-lv1-random" class="nav-link">99乘法-随机</router-link>
+            </li> 
+            <li class="nav-item">
+                <router-link to="/divide-lv1-random" class="nav-link">初级除法-随机</router-link>
+            </li> 
+            <li class="nav-item">
+                <router-link to="/mix-multiply-divide-lv1-random" class="nav-link">初级乘除-随机</router-link>
+            </li> 
+            <li class="nav-item">
+                <router-link to="/plus-minus-lv1-random" class="nav-link">100加减法-随机</router-link>
+            </li>
+            <li class="nav-item">
+                <router-link to="/plus-minus-lv1-random-compare" class="nav-link">100加减比较-随机</router-link>
+            </li>
+            <li class="nav-item">
+                <router-link to="/plus-minus-lv2-random" class="nav-link">1000加减法-随机</router-link>
+            </li>
+        </ul>
+        <router-view style="margin-top: 40px;"></router-view>
+    </div>
+
+    <script src="./assets/deps/jquery.min.js"></script>
+    <script src="./assets/deps/vue.min.js"></script>
+    <script src="./assets/deps/vue-router.min.js"></script>
+    <script src="./assets/exams.js"></script>
+    <script src="./assets/main.js"></script>
+</body>
+</html>
