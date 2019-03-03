@@ -1,5 +1,7 @@
 import AppMain from './components/app-main.vue'
 import AppContent from './components/app-content.vue'
+import LoginTemplate from './components/login.vue'
+import SignupTemplate from './components/signup.vue'
 import exams from './examsMenu'
 
 const getQuestionTemplate = function(type, method) {
@@ -14,8 +16,8 @@ const getQuestionTemplate = function(type, method) {
     }
 }
 
-export default [ { path: '/', component: AppMain } ].concat(
-    exams.map(ex => { 
-        return { path: ex.href, component: getQuestionTemplate(ex.id, ex.gen) }
-    })
-)
+export default [ 
+    { path: '/', component: AppMain }, 
+    { path: '/login', component: LoginTemplate },
+    { path: '/signup', component: SignupTemplate },
+].concat(exams.map(ex => ({ path: ex.href, component: getQuestionTemplate(ex.id, ex.gen) })))

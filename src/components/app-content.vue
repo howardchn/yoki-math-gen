@@ -56,7 +56,8 @@
 import conf from '../conf'
 import Timer from './timer-board.vue'
 import QustionList from './question-list.vue'
-import { Score } from '../scoreService'
+import { Score } from '../services/scoreService'
+import { UserService } from '../services/userService'
 import menu from '../examsMenu'
 
 function getTitle(path) {
@@ -85,6 +86,7 @@ export default {
         }
 
         return {
+            user: null,
             current: 0,
             questions,
             answer: '',
@@ -105,7 +107,7 @@ export default {
         }
     },
     mounted: function() {
-        this.$refs.timerView.start()            
+        this.$refs.timerView.start()
     },
     methods: {
         next: function () {
@@ -144,14 +146,17 @@ export default {
             })
             this.score = this.questions.filter(q => q.correct).length * 100 / this.count
 
-            let score = new Score()
-            score.set('count', this.count)
-            score.set('score', this.score)
-            score.set('type', this.type)
-            score.set('workingTimespan', this.solveTimespan || this.totalTimespan)
-            score.set('totalTimespan', this.totalTimespan)
-            score.set('errorDetails', this.questions.filter(q => !q.correct).map(q => q.expr + q.actual).join(';'))
-            score.save()
+            UserService.verifyBySessionId().then(user => { 
+                let score = new Score()
+                score.set('userId', user.id)
+                score.set('count', this.count)
+                score.set('score', this.score)
+                score.set('type', this.type)
+                score.set('workingTimespan', this.solveTimespan || this.totalTimespan)
+                score.set('totalTimespan', this.totalTimespan)
+                score.set('errorDetails', this.questions.filter(q => !q.correct).map(q => q.expr + q.actual).join(';'))
+                score.save()
+            })
         },
         check: function() {
             this.inChecking = true
