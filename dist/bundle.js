@@ -95,7 +95,7 @@
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _scoreService__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../scoreService */ "./src/scoreService.js");
+/* harmony import */ var _services_scoreService__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../services/scoreService */ "./src/services/scoreService.js");
 //
 //
 //
@@ -104,6 +104,7 @@ __webpack_require__.r(__webpack_exports__);
 //
 
 /* harmony default export */ __webpack_exports__["default"] = ({
+  props: ['userId'],
   data: function data() {
     return {
       ctx: null,
@@ -111,41 +112,45 @@ __webpack_require__.r(__webpack_exports__);
       scores: null
     };
   },
-  mounted: function mounted() {
-    var _this = this;
+  watch: {
+    userId: function userId(val) {
+      var _this = this;
 
-    _scoreService__WEBPACK_IMPORTED_MODULE_0__["query"].find().then(function (r) {
-      var dates = r.map(function (d) {
-        return new Date(d.createdAt);
-      });
-      var values = r.map(function (d) {
-        return d.attributes.score;
-      });
-      _this.chart = Highcharts.chart('container', {
-        chart: {
-          type: 'line'
-        },
-        title: {
-          text: '测试曲线图'
-        },
-        xAxis: {
-          categories: dates,
-          type: 'datetime',
-          labels: {
-            format: '{value:%Y-%b-%e}'
-          }
-        },
-        yAxis: {
+      if (!val) return;
+      _services_scoreService__WEBPACK_IMPORTED_MODULE_0__["query"].equalTo('userId', val);
+      _services_scoreService__WEBPACK_IMPORTED_MODULE_0__["query"].find().then(function (r) {
+        var dates = r.map(function (d) {
+          return new Date(d.createdAt);
+        });
+        var values = r.map(function (d) {
+          return d.attributes.score;
+        });
+        _this.chart = Highcharts.chart('container', {
+          chart: {
+            type: 'line'
+          },
           title: {
-            text: 'Scores'
-          }
-        },
-        series: [{
-          name: 'Score',
-          data: values
-        }]
+            text: '测试曲线图'
+          },
+          xAxis: {
+            categories: dates,
+            type: 'datetime',
+            labels: {
+              format: '{value:%Y-%b-%e}'
+            }
+          },
+          yAxis: {
+            title: {
+              text: 'Scores'
+            }
+          },
+          series: [{
+            name: 'Score',
+            data: values
+          }]
+        });
       });
-    });
+    }
   }
 });
 
@@ -163,8 +168,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _conf__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../conf */ "./src/conf.js");
 /* harmony import */ var _timer_board_vue__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./timer-board.vue */ "./src/components/timer-board.vue");
 /* harmony import */ var _question_list_vue__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./question-list.vue */ "./src/components/question-list.vue");
-/* harmony import */ var _scoreService__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../scoreService */ "./src/scoreService.js");
-/* harmony import */ var _examsMenu__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../examsMenu */ "./src/examsMenu.js");
+/* harmony import */ var _services_scoreService__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../services/scoreService */ "./src/services/scoreService.js");
+/* harmony import */ var _services_userService__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../services/userService */ "./src/services/userService.js");
+/* harmony import */ var _examsMenu__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../examsMenu */ "./src/examsMenu.js");
 //
 //
 //
@@ -219,6 +225,7 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+
 
 
 
@@ -227,7 +234,7 @@ __webpack_require__.r(__webpack_exports__);
 
 function getTitle(path) {
   var result = '';
-  var menuItems = _examsMenu__WEBPACK_IMPORTED_MODULE_4__["default"].filter(function (m) {
+  var menuItems = _examsMenu__WEBPACK_IMPORTED_MODULE_5__["default"].filter(function (m) {
     return m.href == path;
   });
 
@@ -255,6 +262,7 @@ function getTitle(path) {
     }
 
     return {
+      user: null,
       current: 0,
       questions: questions,
       answer: '',
@@ -305,6 +313,8 @@ function getTitle(path) {
       }
     },
     done: function done() {
+      var _this = this;
+
       this.$refs.timerView.stop();
       this.submitted = true;
       this.totalTimespan = this.$refs.timerView.elapsedSeconds;
@@ -318,18 +328,21 @@ function getTitle(path) {
       this.score = this.questions.filter(function (q) {
         return q.correct;
       }).length * 100 / this.count;
-      var score = new _scoreService__WEBPACK_IMPORTED_MODULE_3__["Score"]();
-      score.set('count', this.count);
-      score.set('score', this.score);
-      score.set('type', this.type);
-      score.set('workingTimespan', this.solveTimespan || this.totalTimespan);
-      score.set('totalTimespan', this.totalTimespan);
-      score.set('errorDetails', this.questions.filter(function (q) {
-        return !q.correct;
-      }).map(function (q) {
-        return q.expr + q.actual;
-      }).join(';'));
-      score.save();
+      _services_userService__WEBPACK_IMPORTED_MODULE_4__["UserService"].verifyBySessionId().then(function (user) {
+        var score = new _services_scoreService__WEBPACK_IMPORTED_MODULE_3__["Score"]();
+        score.set('userId', user.id);
+        score.set('count', _this.count);
+        score.set('score', _this.score);
+        score.set('type', _this.type);
+        score.set('workingTimespan', _this.solveTimespan || _this.totalTimespan);
+        score.set('totalTimespan', _this.totalTimespan);
+        score.set('errorDetails', _this.questions.filter(function (q) {
+          return !q.correct;
+        }).map(function (q) {
+          return q.expr + q.actual;
+        }).join(';'));
+        score.save();
+      });
     },
     check: function check() {
       this.inChecking = true;
@@ -354,6 +367,7 @@ function getTitle(path) {
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _app_chart_vue__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./app-chart.vue */ "./src/components/app-chart.vue");
 /* harmony import */ var _examsMenu__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../examsMenu */ "./src/examsMenu.js");
+/* harmony import */ var _services_userService__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../services/userService */ "./src/services/userService.js");
 //
 //
 //
@@ -374,6 +388,7 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+
 
 
 /* harmony default export */ __webpack_exports__["default"] = ({
@@ -383,8 +398,19 @@ __webpack_require__.r(__webpack_exports__);
   },
   data: function data() {
     return {
-      items: _examsMenu__WEBPACK_IMPORTED_MODULE_1__["default"]
+      items: _examsMenu__WEBPACK_IMPORTED_MODULE_1__["default"],
+      userId: null
     };
+  },
+  mounted: function mounted() {
+    var that = this;
+    _services_userService__WEBPACK_IMPORTED_MODULE_2__["UserService"].verifyBySessionId().then(function (user) {
+      that.userId = user.id;
+    }, function (err) {
+      that.$router.push({
+        path: '/login'
+      });
+    });
   }
 });
 
@@ -399,7 +425,7 @@ __webpack_require__.r(__webpack_exports__);
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _scoreService__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../scoreService */ "./src/scoreService.js");
+/* harmony import */ var _services_userService__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../services/userService */ "./src/services/userService.js");
 //
 //
 //
@@ -431,7 +457,6 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
-5;
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
@@ -445,17 +470,23 @@ __webpack_require__.r(__webpack_exports__);
     login: function login() {
       var _this = this;
 
-      _scoreService__WEBPACK_IMPORTED_MODULE_0__["User"].logIn(this.email, this.password).then(function (currentUser) {
+      _services_userService__WEBPACK_IMPORTED_MODULE_0__["User"].logIn(this.email, this.password).then(function (currentUser) {
         var token = currentUser._sessionToken;
         var account = currentUser.attributes.username;
         var email = currentUser.attributes.email;
+        var userId = currentUser.id;
 
         _.toPairs({
           token: token,
           account: account,
-          email: email
+          email: email,
+          userId: userId
         }).forEach(function (item) {
           return document.cookie = item.join('=');
+        });
+
+        _this.$router.push({
+          path: '/'
         });
       }, function (error) {
         _this.errorMsg = error.rawMessage;
@@ -514,7 +545,20 @@ __webpack_require__.r(__webpack_exports__);
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _scoreService__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../scoreService */ "./src/scoreService.js");
+/* harmony import */ var _services_userService__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../services/userService */ "./src/services/userService.js");
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 //
 //
 //
@@ -563,7 +607,7 @@ __webpack_require__.r(__webpack_exports__);
         return;
       }
 
-      var newUser = new _scoreService__WEBPACK_IMPORTED_MODULE_0__["User"]();
+      var newUser = new _services_userService__WEBPACK_IMPORTED_MODULE_0__["User"]();
       newUser.setUsername(this.email);
       newUser.setEmail(this.email);
       newUser.setPassword(this.password);
@@ -8101,7 +8145,12 @@ var render = function() {
       _c(
         "div",
         { staticClass: "col-md-6 col-sm-12" },
-        [_c("app-chart", { staticStyle: { height: "400px" } })],
+        [
+          _c("app-chart", {
+            staticStyle: { height: "400px" },
+            attrs: { userId: _vm.userId }
+          })
+        ],
         1
       )
     ])
@@ -8402,6 +8451,45 @@ var render = function() {
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
   return _c("div", [
+    _c("div", { staticClass: "form-group" }, [
+      _c("label", { attrs: { for: "exampleInputEmail1" } }, [
+        _vm._v("Email address")
+      ]),
+      _vm._v(" "),
+      _c("input", {
+        directives: [
+          {
+            name: "model",
+            rawName: "v-model",
+            value: _vm.email,
+            expression: "email"
+          }
+        ],
+        staticClass: "form-control",
+        attrs: {
+          type: "email",
+          id: "exampleInputEmail1",
+          "aria-describedby": "emailHelp",
+          placeholder: "Enter email"
+        },
+        domProps: { value: _vm.email },
+        on: {
+          input: function($event) {
+            if ($event.target.composing) {
+              return
+            }
+            _vm.email = $event.target.value
+          }
+        }
+      }),
+      _vm._v(" "),
+      _c(
+        "small",
+        { staticClass: "form-text text-muted", attrs: { id: "emailHelp" } },
+        [_vm._v("We'll never share your email with anyone else.")]
+      )
+    ]),
+    _vm._v(" "),
     _c("div", { staticClass: "form-group" }, [
       _c("label", { attrs: { for: "exampleInputEmail1" } }, [
         _vm._v("Email address")
@@ -23932,13 +24020,17 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var leancloud_storage__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(leancloud_storage__WEBPACK_IMPORTED_MODULE_0__);
 
 leancloud_storage__WEBPACK_IMPORTED_MODULE_0___default.a.init('vSpBIzidVtTr2HLkkSHcx5JG-gzGzoHsz', '71PEcWjlRMzHoHDus1PzLLtD');
+var count = 4;
+
+var getCount = function getCount() {
+  var count = localStorage.getItem('count') || this.count;
+  return count;
+};
+
 /* harmony default export */ __webpack_exports__["default"] = ({
-  count: 20,
+  count: count,
   AV: leancloud_storage__WEBPACK_IMPORTED_MODULE_0___default.a,
-  getCount: function getCount() {
-    var count = localStorage.getItem('count') || this.count;
-    return count;
-  }
+  getCount: getCount
 });
 
 /***/ }),
@@ -24209,25 +24301,98 @@ var getQuestionTemplate = function getQuestionTemplate(type, method) {
 
 /***/ }),
 
-/***/ "./src/scoreService.js":
-/*!*****************************!*\
-  !*** ./src/scoreService.js ***!
-  \*****************************/
-/*! exports provided: User, Score, query */
+/***/ "./src/services/scoreService.js":
+/*!**************************************!*\
+  !*** ./src/services/scoreService.js ***!
+  \**************************************/
+/*! exports provided: Score, query */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Score", function() { return Score; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "query", function() { return query; });
+/* harmony import */ var _conf__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../conf */ "./src/conf.js");
+
+var AV = _conf__WEBPACK_IMPORTED_MODULE_0__["default"].AV;
+var Score = AV.Object.extend('Score');
+var query = new AV.Query('Score');
+
+
+/***/ }),
+
+/***/ "./src/services/userService.js":
+/*!*************************************!*\
+  !*** ./src/services/userService.js ***!
+  \*************************************/
+/*! exports provided: User, UserService */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "User", function() { return User; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Score", function() { return Score; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "query", function() { return query; });
-/* harmony import */ var leancloud_storage__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! leancloud-storage */ "./node_modules/leancloud-storage/dist/av-min.js");
-/* harmony import */ var leancloud_storage__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(leancloud_storage__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "UserService", function() { return UserService; });
+/* harmony import */ var _conf__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../conf */ "./src/conf.js");
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-leancloud_storage__WEBPACK_IMPORTED_MODULE_0___default.a.init('vSpBIzidVtTr2HLkkSHcx5JG-gzGzoHsz', '71PEcWjlRMzHoHDus1PzLLtD');
-var Score = leancloud_storage__WEBPACK_IMPORTED_MODULE_0___default.a.Object.extend('Score');
-var User = leancloud_storage__WEBPACK_IMPORTED_MODULE_0___default.a.User;
-var query = new leancloud_storage__WEBPACK_IMPORTED_MODULE_0___default.a.Query('Score');
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+
+var User = _conf__WEBPACK_IMPORTED_MODULE_0__["default"].AV.User;
+
+var UserService =
+/*#__PURE__*/
+function () {
+  function UserService() {
+    _classCallCheck(this, UserService);
+  }
+
+  _createClass(UserService, null, [{
+    key: "verifyBySessionId",
+    value: function verifyBySessionId() {
+      return new Promise(function (res, rej) {
+        var token = UserService._getSessionToken();
+
+        if (!token) {
+          rej('token not found');
+        }
+
+        User.become(token).then(function (v) {
+          res(v);
+        }, function (err) {
+          return rej(err);
+        });
+      });
+    }
+  }, {
+    key: "_getSessionToken",
+    value: function _getSessionToken() {
+      var cookieStr = document.cookie;
+      var cookieItems = cookieStr.split(';').map(function (item) {
+        return item.trim();
+      }).map(function (item) {
+        var segs = item.split('=');
+        return {
+          key: segs[0],
+          val: segs[1]
+        };
+      }).filter(function (item) {
+        return item.key === 'token';
+      });
+
+      if (cookieItems.length === 0) {
+        return null;
+      } else {
+        return cookieItems[0].val;
+      }
+    }
+  }]);
+
+  return UserService;
+}();
+
 
 
 /***/ })

@@ -29,8 +29,8 @@
   </div>
 </template>
 
-<script>5
-import { User, Score } from '../scoreService'
+<script>
+import { User } from '../services/userService'
 
 export default {
     data: () => ({ email: 'howardch@outlook.com', password: 'ckeyhmon1', errorMsg: '' }),
@@ -40,7 +40,10 @@ export default {
                 const token = currentUser._sessionToken
                 const account = currentUser.attributes.username
                 const email = currentUser.attributes.email
-                _.toPairs({ token, account, email }).forEach(item => document.cookie = item.join('='))
+                const userId = currentUser.id
+                _.toPairs({ token, account, email, userId }).forEach(item => document.cookie = item.join('='))
+
+                this.$router.push({ path: '/' })
             }, error => {
                 this.errorMsg = error.rawMessage
             })
