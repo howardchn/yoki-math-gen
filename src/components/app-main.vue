@@ -12,7 +12,7 @@
             </div>
         </div>
         <div class="col-md-6 col-sm-12">
-            <app-chart style="height: 400px;"></app-chart>
+            <app-chart style="height: 400px;" :userId="userId"></app-chart>
         </div>
     </div>
   </div>
@@ -21,6 +21,7 @@
 <script>
 import AppChart from './app-chart.vue'
 import examsMenu from '../examsMenu'
+import { UserService } from '../services/userService'
 
 export default {
   name: "app-main",
@@ -28,7 +29,15 @@ export default {
       'app-chart': AppChart
   },
   data: function() {
-    return { items: examsMenu }
+    return { items: examsMenu, userId: null }
+  },
+  mounted: function() {
+    let that = this
+    UserService.verifyBySessionId().then(user => { 
+      that.userId = user.id
+    }, err => {
+      that.$router.push({ path: '/login' })
+    })
   }
 }
 </script>
