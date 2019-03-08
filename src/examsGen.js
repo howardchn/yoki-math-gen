@@ -1,6 +1,6 @@
 let ops = [ '+', '-', '-' ];
 
-function randomLess10(max = 10, min = 1) {
+function randomLess10(max = 10, min = 2) {
     let number = Math.floor(Math.random() * max) || 1;
     while (number < min) {
         number = randomLess10(max, min)
@@ -39,7 +39,7 @@ function randomDivideLv1() {
 function randomDivideWithModLv1() {
     let n1 = randomLess10(10, 2);
     let n2 = randomLess10();
-    let mod = randomLess10(n1);
+    let mod = randomLess10(n1, 1);
     let v = n1 * n2 + mod;
     let expr = `${v} ÷ ${n1} = `; 
     return { expr, v: n2, mod, requireMod: true };
@@ -108,6 +108,14 @@ function randomPlusMinusExamLv2() {
     return { expr: q.expr, v: q.v };
 }
 
+function shuffle(items) {
+    items = items.sort((a,b) => {
+      return Math.random() * 2 - 1
+    })
+
+    return items
+}
+
 function randomMix() {
     let gens = [
         randomPlusMinusExamLv2,
@@ -116,7 +124,11 @@ function randomMix() {
         randomMultipleLv1
     ]
 
-    let randomIndex = randomNumber(0, gens.length)
+    let options = '001111122233'.split('')
+    options = shuffle(options)
+
+    // let randomIndex = randomNumber(0, gens.length)
+    let randomIndex = options[randomNumber(0, options.length)]
     return gens[randomIndex]()
 }
 
