@@ -11,8 +11,17 @@ function genLv1() {
     return qs;
 }
 
-function randomLess10() {
-    return Math.floor(Math.random() * 9 + 1);
+function randomLess10(ignoreOne = true) {
+    let gen = function() {
+        return Math.floor(Math.random() * 9 + 1);
+    }
+
+    let num = gen()
+    while (ignoreOne && num == 1) {
+        num = gen()
+    }
+
+    return num
 }
 
 function genLv2(count = 20) {
@@ -80,17 +89,17 @@ function randomQPositive(count, params) {
     return { expr, v };
 }
 
-function randomNext(min = 10, max = 100) {
-    let c = randomNumber(min, max);
+function randomNext(min = 10, max = 100, exclude = []) {
+    let c = randomNumber(min, max, exclude);
     let op1 = ops[Math.round(Math.random() * (ops.length - 1))];
     return ` ${op1} ${c}`;
 }
 
-function randomNumber(min, max = 100) {
+function randomNumber(min, max = 100, exclude=[]) {
     let c = parseInt(Math.random() * max);
 
     if (min !== undefined) {
-        while (c < min) {
+        while (c < min || exclude.filter(i => i == c).length > 0) {
             c = parseInt(Math.random() * max);
         }
     }
