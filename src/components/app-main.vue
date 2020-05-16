@@ -32,12 +32,14 @@ export default {
     return { items: examsMenu, userId: null }
   },
   mounted: function() {
-    let that = this
-    UserService.verifyBySessionId().then(user => { 
-      that.userId = user.id
-    }, err => {
-      that.$router.push({ path: '/login' })
-    })
+    // let that = this
+    // UserService.verifyBySessionId().then(user => { 
+    //   that.userId = user.id
+    // }, err => {
+    //   that.$router.push({ path: '/login' })
+    // })
+
+    this.userId = 'yokichen'
   }
 }
 </script>
