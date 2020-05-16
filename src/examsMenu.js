@@ -1,5 +1,6 @@
 import { 
   randomMultipleLv1, 
+  randomMultipleLv2,
   randomDivideLv1, 
   randomDivideWithModLv1, 
   randomPlusMinusExamLv2, 
@@ -8,11 +9,17 @@ import {
 } from './examsGen'
 
 export default [
+    // {
+    //   id: 1,
+    //   name: '基础乘法练习',
+    //   href: '/multi-simple',
+    //   gen: randomMultipleLv1
+    // }, {
     {
-      id: 1,
-      name: '基础乘法练习',
-      href: '/multi-simple',
-      gen: randomMultipleLv1
+        id: 1,
+        name: '基础乘法练习Lv2',
+        href: '/multi-simple-lv2',
+        gen: randomMultipleLv2
     }, {
       id: 3,
       name: '基本除法练习',

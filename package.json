@@ -27,7 +27,7 @@
   },
   "scripts": {
     "watch": "./node_modules/.bin/webpack --config webpack.dev.js",
-    "publish": "./node_modules/.bin/webpack --config webpack.prod.js"
+    "build-prod": "./node_modules/.bin/webpack --config webpack.prod.js"
   },
   "repository": {
     "type": "git",

@@ -28,6 +28,14 @@ function randomMultipleLv1() {
     return { expr, v };
 }
 
+function randomMultipleLv2() {
+    let n1 = randomLess10(100, 11);
+    let n2 = randomLess10(100, 11);
+    let expr = `${n1} * ${n2} = `; 
+    let v = n1 * n2;
+    return { expr, v };
+}
+
 function randomDivideLv1() {
     let n1 = randomLess10();
     let n2 = randomLess10();
@@ -134,6 +142,7 @@ function randomMix() {
 
 export {
     randomMultipleLv1,
+    randomMultipleLv2,
     randomPlusMinusExamLv2,
     randomDivideLv1,
     randomMixedMultiAndDivideLv1,
